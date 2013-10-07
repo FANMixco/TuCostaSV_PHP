@@ -1,0 +1,1 @@
+select idplace, s.name state, t.name type, p.name place, description, email, phone, schedule, latitude, longitude FROM places p, states s, types t WHERE p.idstate=s.idstate AND p.idtype=t.idtype
