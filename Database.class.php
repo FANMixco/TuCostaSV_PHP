@@ -292,7 +292,7 @@ function query2JSON($sql,$callback='') {
 	return $str;
 }
 
-function insert_vote($sql,$user,$place){
+function insert_vote($user,$place,$vote,$comment){
 
 	$value=0;
 	
@@ -313,24 +313,58 @@ function insert_vote($sql,$user,$place){
 		$i++;
 	}
 
-	$jsonReturn='[{created:"';
+	$jsonReturn='{"created":"';
 	
 //	echo $str;
 	
 	if ($str==0)
 	{
+		$sql	= "INSERT INTO votes(iduser, idplace, vote, comments) VALUES('".$user."',".$place.",".$vote.",'".$comment."')";
+	
 		if($this->query($sql)) 
+		{	
 			$value=1;
+			
+			$votesSQL= "SELECT vote from places WHERE idplace=".$place;
+				
+			$rows = $this->fetch_all_array($votesSQL);
+			
+			$total_rows=count($rows);
+			$i=0;
+			$totalVotes = "";
+			foreach($rows as $k){
+				$j=0;
+				$total_colums = count($k);
+				foreach($k as $key => $val) {
+					$totalVotes .= $val;			
+					$j++;
+				}
+				$i++;
+			}
+			
+			$totalVotes+=$vote;
+			
+			if ($totalVotes<0)
+				$totalVotes=0;
+				
+			$sql="UPDATE places SET vote=".$totalVotes." WHERE idplace=".$place;
+			
+			if($this->query($sql))
+				$value=1;
+			else
+				$value=2;			
+		}
+		else
+			$value=2;
 	}
 	else
 		$value=3;
 		
-	$jsonReturn.=$value.'"}]';	
+	$jsonReturn.=$value.'"}';	
 //echo $jsonReturn;	
 	return $jsonReturn;
 }
 }
-
 //CLASS Database 
 ################################################################################################### 
 
